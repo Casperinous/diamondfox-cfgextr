@@ -1,0 +1,30 @@
+rule diamond_fox {
+
+	strings:
+		$b64data = {
+			1B ?? ?? 		// LitStr "e2JclxuDk3BdLulrO2wCqX87FkhmfStNXR4oSH7Hg1nzNlea4aCF3J/Lozewh5cJSgYR0pQ781HOxcXee7IeZ9tsRnaBi6Fcl9T5"	
+			F5 ?? ?? ?? ??  // LitI4 0
+			04 ?? ??		// FLdRfVar var_A0
+			3B				// Ary1StStrCopy
+
+		}
+
+		$main = {
+			1B ?? ?? ??       // LitStr "=6>fi<68:g7j<gk8"
+			0B ?? ?? ??       // ImpAdCallI2 Proc_0_83_4076AC()
+			31 ?? ?? ?? ??    // FStStr var_88
+			F5 ?? ?? ?? ??    // LitI4 0
+			F5 80 ?? ?? ??    // LitI4 &H80
+			04 ?? ?? 		  // FLdRfVar var_88
+			4D ?? ?? ?? ?? 	  // CVarRef
+			04 ?? ?? 		  // FLdRfVar var_C4
+			0A ?? ?? ?? ?? 	  // ImpAdCallFPR4  = StrConv(, , )
+			04 ?? ?? 		  // FLdRfVar var_C4
+			FC 60 ?? 		  // CVar2Vec
+		}
+
+
+	condition:
+		#b64data > 3 and $main
+
+}

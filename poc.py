@@ -58,28 +58,26 @@ class Data:
                 self._init_bound_entry(obj_info.lpConstants)
 
             for proc in self.vba.get_proc_desc_info(obj_info):
-                self._check_bounds(obj_info.lpConstants, proc.addr, proc.size)
-                
-    def _check_bounds(self, addr, proc_addr, sz):
+                self._add_funcs(obj_info.lpConstants, proc.addr, proc.size)
 
+    def _add_funcs(self, addr, proc_addr, sz):
         if addr in self.data:
-            l,u = self.data[addr]
-
-            if proc_addr < l:
-                self.data[addr][0] = proc_addr
-
-            if proc_addr + sz > u:
-                self.data[addr][1] = proc_addr + sz
+            o = (proc_addr, sz)
+            self.data[addr].append(o)
 
     def _get_const_addr(self,va):
+        r = None
         for i in self.data:
-            if va > self.data[i][0] and va < self.data[i][1]:
-                return i
-        return None
+            arr = self.data[i]
+            for o in arr:
+                (p, s) = o
+                if va >= p-s and va <= p:
+                    r = i
+        return r
 
     def _is_va(self, va):
         if va < 0x00400000:
-            va = self.pe.va(va)
+            va = self.pe.va_from_file_off(va)
         return va
 
     def get_utf_str(self, va, off):
@@ -99,7 +97,8 @@ class Data:
 
     def _init_bound_entry(self, addr):
         if addr not in self.data:
-            self.data[addr] = [sys.maxsize,0]
+            #self.data[addr] = [sys.maxsize,0]
+            self.data[addr] = []
 
 
     def WORD(self, data):
@@ -171,7 +170,6 @@ def get_config(data):
 	b64_conf = get_b64_conf(data,d)
 	s_encr_conf = base64.b64decode(b64_conf)
 	key = get_aes_key(data,d)
-	
 	if key:
 		key = d.decode_str(key)
 	aes = AESCipher(key)
